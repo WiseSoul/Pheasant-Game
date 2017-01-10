@@ -124,8 +124,8 @@ int main ()
 
 	char rand,command[100] = "kill";
 	rand = PickRandomLetter();
-	
-	while(rand == 'w' || rand == 'y' || rand =='x' || rand == 'q')
+
+	while(rand == 'w' || rand == 'y' || rand =='x' || rand == 'q' || rand == 'k')
 	rand = PickRandomLetter();
 
     if ((socketServer = socket (AF_INET, SOCK_STREAM, 0)) == -1)
@@ -157,8 +157,8 @@ int main ()
     }
 
     signal(SIGCHLD, sighandler);
-	
-	
+
+
     cout<<endl<<endl;
     cout<<"'||'''|, '||                                             ||       .|'''''|"<<endl;
     cout<<" ||   ||  ||                                             ||       || .                              "<<endl;
@@ -172,10 +172,10 @@ int main ()
 
     cout<<"Waiting for a number of "<<nrOfPlayers<<" players to connect at port: "<<PORT<<" ..."<<endl;
     int i,j = nrOfPlayers,winner;
-	char p1InitWord[100] = "Because you are Player #1 you must write a word that starts with the letter: ";
-	
-	p1InitWord[strlen(p1InitWord)] = rand;
-	
+    char p1InitWord[100] = "Because you are Player #1 you must write a word that starts with the letter: ";
+
+    p1InitWord[strlen(p1InitWord)] = rand;
+
     while (1)
     {
         int player[nrOfPlayers+1];
@@ -183,10 +183,10 @@ int main ()
 		char address[INET_ADDRSTRLEN];
 		char checkLast[100] = "";
 		fflush (stdout);
-		
+
 	for(i=0;i<nrOfPlayers;i++) 
 	{
-	
+
 	player[i] = accept (socketServer, (struct sockaddr *) &from,(socklen_t*) &size);
 
         if (player[i] < 0)
@@ -211,22 +211,22 @@ int main ()
        cout<<"Starting game ..."<<endl<<endl;
 
 	   cout<<"[server-"<<getpid()<<"] logs:"<<endl;
-		
+
 	   write(player[0], p1InitWord, 100);
-	   
+
 	   if (read (player[0], pWord, 100) <= 0)
         {
             cout<< "Player #"<<'1'<<" has entered a invalid word or has disconnected."<<endl;
 
         }
-		
+
 		CopyRightWord(pWord,checkLast);
-		
-		if (VerifyWinner(checkLast) == 1)
-			cout<<"Player #1 has closed the game from the first round. He lost!"<<endl;
-		
+
+	if (VerifyWinner(checkLast) == 1)
+		cout<<"Player #1 has closed the game from the first round. He lost!"<<endl;
+
 		cout<<"Player #1's '"<<checkLast<<"'";
-		
+
 	  if (ValidateWord(checkLast) == 1 && checkLast[0] == rand){
 		cout<<" is a valid word that starts with letter: "<<rand<<endl;
 		}
@@ -235,18 +235,18 @@ int main ()
 	    cout<<" is not a valid word. He has been disconnected."<<endl;
 		}
 
-	   while(1) { 
-	   
+	   while(1) {
+
 	    if (j == 0){
-			   
+
 		 if (read (player[j], pWord, 100) <= 0){
-            cout<< "Player #"<<j<<" has entered a invalid word or has disconnected."<<endl;
-         }	   
-			   
+            cout<< "Player #"<<j+1<<" has entered a invalid word or has disconnected."<<endl;
+           }
+
 		CopyRightWord(pWord,pAux);
-		
+
 		cout<<"Player #"<<j+1<<"'s '"<<pAux<<"' ";
-		
+
 		if (ValidateWord(pAux) == 1 && pAux[0] == checkLast[strlen(checkLast)-2] && pAux[1] == checkLast[strlen(checkLast)-1]) {
 		cout<<"is a valid word that starts with letters: "<<pAux[0]<<pAux[1]<<endl;
 		   }
@@ -254,29 +254,28 @@ int main ()
 		cout<<"is not a valid word. He has been disconnected."<<endl;
 
 		}
-		
+
 		if (VerifyWinner(pAux) == 1)
 			winner = j;
-			
+
 		strcpy(checkLast,pAux);
 		}
 
 	   for(j=1;j<nrOfPlayers;j++)
-	   {   
-		   
+	   {
 		if (write(player[j], pWord, 100) <=0){
 		   cout<<"Cannot send word to Player #"<<j<<endl;
 		   return 0;
 		}
-		
+
 		 if (read (player[j], pWord, 100) <= 0){
-            cout<< "Player #"<<j<<" has entered a invalid word or has disconnected."<<endl;
-        }
-		
+                 cout<< "Player #"<<j<<" has entered a invalid word or has disconnected."<<endl;
+                 }
+
 		CopyRightWord(pWord,pAux);
 
 		cout<<"Player #"<<j+1<<"'s '"<<pAux<<"' ";
-		
+
 		if (ValidateWord(pAux) == 1 && pAux[0] == checkLast[strlen(checkLast)-2] && pAux[1] == checkLast[strlen(checkLast)-1]) {
 		cout<<"is a valid word that starts with letters: "<<pAux[0]<<pAux[1]<<endl;
 		}
@@ -284,16 +283,15 @@ int main ()
 	    else{
 	    cout<<"is not a valid word. He has been disconnected."<<endl;
 		}
-		
+
 		if (VerifyWinner(pAux) == 1)
 			winner = j;
-		
-		strcpy(checkLast,pAux);
-		
+
+		strcpy(checkLast,pAux);	
 	   }
 
 	  if(j == nrOfPlayers){
-		  
+
 		if (write(player[0], pWord, 100) <=0){
 		   cout<<"Cannot send word to Player #"<<j-1<<endl;
 		   return 0;
@@ -302,7 +300,7 @@ int main ()
 	  }
 
 	}
-	cout<<"Winner: "<<winner<<endl;
+
    }
   }
 }

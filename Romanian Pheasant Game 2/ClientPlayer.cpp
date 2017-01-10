@@ -177,7 +177,6 @@ int main (int argc, char *argv[])
 	if (VerifyWinner(auxWord) == 1)
 	{		
 		 cout<<"Congratulations! You have closed the game and won!"<<endl;
-		 close(socketDescr);
 		 return 0;
 	}
 	
