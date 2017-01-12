@@ -97,6 +97,18 @@ int getNrOfPlayers()
 	return number;
 }
 
+int countZero(int v[],int dim)
+{
+    int i,number = 0;
+    for(i=0;i<dim;i++)
+    {
+        if (v[i] == 0) {
+           number++; 
+        }
+    }
+    return number;
+}
+
 
 void sighandler(int signo)
 {
@@ -122,10 +134,10 @@ int main ()
     int optVal = 1;
     int pid;
 
-	char rand,command[100] = "kill";
-	rand = PickRandomLetter();
+    char rand;
+    rand = PickRandomLetter();
 
-	while(rand == 'w' || rand == 'y' || rand =='x' || rand == 'q' || rand == 'k')
+    while(rand == 'w' || rand == 'y' || rand =='x' || rand == 'q' || rand == 'k')
 	rand = PickRandomLetter();
 
     if ((socketServer = socket (AF_INET, SOCK_STREAM, 0)) == -1)
@@ -171,7 +183,7 @@ int main ()
 
 
     cout<<"Waiting for a number of "<<nrOfPlayers<<" players to connect at port: "<<PORT<<" ..."<<endl;
-    int i,j = nrOfPlayers,winner;
+    int i,j = nrOfPlayers,vec[10];
     char p1InitWord[100] = "Because you are Player #1 you must write a word that starts with the letter: ";
 
     p1InitWord[strlen(p1InitWord)] = rand;
@@ -188,6 +200,7 @@ int main ()
 	{
 
 	player[i] = accept (socketServer, (struct sockaddr *) &from,(socklen_t*) &size);
+	vec[i] = 1;
 
         if (player[i] < 0)
         {
@@ -197,7 +210,7 @@ int main ()
 	else
         {
           inet_ntop(AF_INET, &from.sin_addr.s_addr, address, INET_ADDRSTRLEN);
-    	  cout<< "Player:"<<i+1<<" connected to [server-"<<getpid()<<"] at adress:"<<address<<" "<<ntohs(from.sin_port)<<endl;
+    	  cout<< "Player #"<<i+1<<" connected to [server-"<<getpid()<<"] at address:"<<address<<" "<<ntohs(from.sin_port)<<endl;
         }
 
 	}
@@ -233,6 +246,7 @@ int main ()
 
 	  else{
 	    cout<<" is not a valid word. He has been disconnected."<<endl;
+	    vec[0] = 0;
 		}
 
 	   while(1) {
@@ -252,11 +266,8 @@ int main ()
 		   }
 		else {
 		cout<<"is not a valid word. He has been disconnected."<<endl;
-
+        vec[j] = 0;
 		}
-
-		if (VerifyWinner(pAux) == 1)
-			winner = j;
 
 		strcpy(checkLast,pAux);
 		}
@@ -282,10 +293,8 @@ int main ()
 
 	    else{
 	    cout<<"is not a valid word. He has been disconnected."<<endl;
+	    vec[j] = 0;
 		}
-
-		if (VerifyWinner(pAux) == 1)
-			winner = j;
 
 		strcpy(checkLast,pAux);	
 	   }
@@ -298,8 +307,30 @@ int main ()
 		}
 		j = 0;
 	  }
-
+	  
+	  for(int k=0;k<nrOfPlayers;k++)
+        {
+            if(vec[k] == 1 && countZero(vec,nrOfPlayers) == nrOfPlayers - 1) {
+                cout<<"We have a winner! Player #"<<k+1<<" has won!"<<endl;
+		ofstream fout("winner.txt");
+		fout<<"Player #"<<k+1<<" has won the game!";
+	        fout.close();
+                goto end;
+            }
+        }
 	}
+	
+end:
+char decision;
+
+do{
+cout<<"Press Y to start again,or N to close the Server."<<endl;
+cin>>decision;
+
+if (decision == 'N' || decision == 'n')
+    return 0;
+    
+}while(decision == 'y' || decision == 'Y');
 
    }
   }

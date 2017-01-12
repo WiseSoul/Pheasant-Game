@@ -28,10 +28,10 @@ bool ValidateWord(char word[])
         while(fin>>readWord)
         {
             if( strcmp(readWord,word) == 0)
-			{
-			fin.close();
-			return true;
-			}
+		{
+		fin.close();
+		return true;
+		}
         }
 
 return false;
@@ -47,6 +47,33 @@ void CopyRightWord(char initialWord[1000],char Word[1000])
      c[0]=initialWord[i];
      strcat(Word,c);
     }
+}
+
+
+bool ShowWinner(char win[])
+{
+   ifstream fin("winner.txt");
+   
+   strcpy(win,"");
+
+   fin.get(win,50);
+   fin.close();
+
+   if(strlen(win) > 10)
+	return true;
+
+return false;
+}
+
+void Clear()
+{
+    
+    ofstream clr;
+    
+    clr.open("winner.txt", ofstream::out | ofstream::trunc);
+    
+    clr.close();
+
 }
 
 bool VerifyWinner(char Word[])
@@ -76,8 +103,8 @@ int main (int argc, char *argv[])
     int socketDescr;
     struct sockaddr_in server;
     char word[100]="",auxWord[100] = "";
-	char fChr,lChr;
-
+    char fChr,lChr;
+    char winner[100] = "";	
 
     if (argc != 3)
     {
@@ -121,7 +148,13 @@ int main (int argc, char *argv[])
 	
     while(1)
     {
-	
+      if (ShowWinner(winner) == true)
+    	{ 
+	cout<<winner<<"!"<<endl;
+	Clear();
+	return 0;
+    	}		
+
 	bzero(word,100);
 	read (socketDescr, word, 100);
 	strcpy(aux,word);
@@ -136,12 +169,12 @@ int main (int argc, char *argv[])
 	fChr = word[strlen(word)-3];
 	lChr = word[strlen(word)-2];
 	}
-	
+
 	cout<<"Enter word:";
 
 	bzero(word, 100);
-    fflush(stdout);
-    read(0, word, 100);
+        fflush(stdout);
+        read(0, word, 100);
 
 	CopyRightWord(word,auxWord);
 
@@ -161,7 +194,7 @@ int main (int argc, char *argv[])
 	if (ValidateWord(auxWord) == 1 && auxWord[0] == fChr && auxWord[1] == lChr) {
 	cout<<"Valid word. Next player's turn."<<endl<<endl;
 	}
-	else {
+	else if (ShowWinner(winner) == false) {
 	cout<<"You entered a invalid word. You have been disconnected."<<endl;
 	close(socketDescr);
 	return 0;
@@ -173,19 +206,15 @@ int main (int argc, char *argv[])
        cout<<"Error sending word to server"<<endl;
        return 0;
     }
+
 	
-	if (VerifyWinner(auxWord) == 1)
-	{		
-		 cout<<"Congratulations! You have closed the game and won!"<<endl;
-		 return 0;
-	}
+    if (VerifyWinner(auxWord) == 1)
+    {		
+       cout<<"Congratulations! You have closed the game and won!"<<endl;
+       return 0;
+    }
 	
-	CopyRightWord(aux,check);
-	
-	if (strcmp(check,auxWord) == 0)
-	{
-		cout<<"You cannot enter the word of your opponent! You lost."<<endl;
-		close(socketDescr);
-	}
+    CopyRightWord(aux,check);
+   
    }
 }
